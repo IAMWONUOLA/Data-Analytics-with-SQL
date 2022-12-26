@@ -1,0 +1,2 @@
+Filtering your CASE statement:
+1) Identify Bologna's team ID listed in the teams_italy table by selecting the team_long_name and team_api_id.
