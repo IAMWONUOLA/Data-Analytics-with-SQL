@@ -1,4 +1,4 @@
-Filtering your CASE statement:
+Exercise: Filtering your CASE statement
 
 1) Identify Bologna's team ID listed in the teams_italy table by selecting the team_long_name and team_api_id.
 -- Select team_long_name and team_api_id from team
@@ -59,8 +59,9 @@ Case Statements are great for
 *Aggregating data
 
 CASE WHEN with COUNT
+table counting the number of home and away games that Liverpool won in each season.
 ex: SELECT season,
-	COUNT(CASE WHEN hometown_id = 8650 AND home_goal > away_goal
+	COUNT(CASE WHEN hometeam_id = 8650 AND home_goal > away_goal
 		THEN 54321 END) AS home_wins,
 	COUNT(CASE WHEN awayteam_id = 8650 AND away_goal > home_goal
 		THEN 'Some random text' END) AS away_wins
@@ -87,6 +88,7 @@ Season     |  home_goals  |  away_goals
 2012/2013  |  33          | 38
 
 The CASE is fairly AVG
+the AVG goals Liverpool scored in each season
 ex: SELECT season,
 	AVG(CASE WHEN hometeam_id = 8650 
 		THEN home_goal END) AS avg_homegoals,
@@ -101,6 +103,80 @@ Season     |  avg_homegoals  |  avg_awaygoals
 2012/2013  |  1.736          |  2
 
 A ROUNDed AVG(easy to read avg results)
+ex: SELECT season,
+	ROUND(AVG(CASE WHEN hometeam_id = 8650 
+		THEN home_goal END),2) AS avg_homegoals,
+	ROUND(AVG(CASE WHEN awayteam_id = 8650 
+		THEN away_goal END),2) AS avg_awaygoals
+FROM match
+Group BY season;
 
+Result:
+Season     |  avg_homegoals  |  avg_awaygoals
+2011/2012  |  1.26           |  1.21
+2012/2013  |  1.73           |  2
+
+Percentages with CASE and AVG(using 1 and 0)
+What percentage of Liverpool's games did they win in each season?
+ex: SELECT season,
+AVG(CASE WHEN hometeam_id = 8455 AND home_goal > away_goal THEN 1
+	 WHEN hometeam_id = 8455 AND home_goal < away_goal THEN 0
+		END) AS pct_homewins,
+AVG(CASE WHEN awayteam_id = 8455 AND away_goal > home_goal THEN 1
+	 WHEN awayteam_id = 8455 AND away_goal < home_goal THEN 0
+		END) AS pct_awaywins,
+FROM match
+Group BY season;
+
+Result:
+Season     |  pct_homewins      |  pct_awaywins
+2011/2012  |  0.75              |  0.5
+2012/2013  |  0.85714           |  0.66666
+
+Exercise: COUNT using CASE WHEN
+
+1) Create a CASE statement that identifies the id of matches played in the 2012/2013 season. Specify that you want ELSE values to be NULL.
+  *Wrap the CASE statement in a COUNT function and group the query by the country alias.
+SELECT 
+	c.name AS country,
+    -- Count games from the 2012/2013 season
+	Count(CASE WHEN m.season = '2012/2013' 
+        	THEN m.id ELSE NULL END) AS matches_2012_2013
+FROM country AS c
+LEFT JOIN match AS m
+ON c.id = m.country_id
+-- Group by country name alias
+GROUP BY country;
+
+Result:
+country   |  Matches_2012_2013
+Portugal  |  240
+France    |  380
+Scotland  |  228
+
+2) Create 3 CASE WHEN statements counting the matches played in each country across the 3 seasons.
+  *END your CASE statement without an ELSE clause.
+  
+SELECT 
+	c.name AS country,
+    -- Count matches in each of the 3 seasons
+	COUNT(CASE WHEN m.season = '2012/2013' THEN m.id END) AS matches_2012_2013,
+	COUNT(CASE WHEN m.season = '2013/2014' THEN m.id END) AS matches_2013_2014,
+	COUNT(CASE WHEN m.season = '2014/2015' THEN m.id END) AS matches_2014_2015
+FROM country AS c
+LEFT JOIN match AS m
+ON c.id = m.country_id
+-- Group by country name alias
+GROUP BY country;
+
+
+Result:
+country   |  Matches_2012_2013  |  matches_2013_2014  |  matches_2014_2015
+Portugal  |  240                |  240                |  306
+France    |  380		|  380		      |  380 
+Scotland  |  228		|  228		      | 228
+
+
+  
 
 	
